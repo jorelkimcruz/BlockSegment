@@ -20,6 +20,7 @@ class BlockCollectionViewCell: UICollectionViewCell {
     let title: UILabel = {
         let label = UILabel()
         label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 15)
         return label
     }()
     

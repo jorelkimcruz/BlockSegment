@@ -12,19 +12,24 @@ public protocol BlockSegmentDelegate {
 }
 
 public class BlockSegment: UIView{
-
-   internal var collectionView:UICollectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: UICollectionViewFlowLayout.init())
-   internal let layout:UICollectionViewFlowLayout = UICollectionViewFlowLayout.init()
+    
+    internal var collectionView:UICollectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: UICollectionViewFlowLayout.init())
+    internal let layout:UICollectionViewFlowLayout = UICollectionViewFlowLayout.init()
     
     internal let cell = "cell"
     
     public var delegate : BlockSegmentDelegate!
     
-    open class func Items(text: [String], icon: [UIImage]) -> (text: [String], icon: [UIImage]) {
+    open class func Items(text: [String], icon: [UIImage], enabled: [Bool]) -> (text: [String], icon: [UIImage], enabled: [Bool]) {
+        return (text:text, icon: icon, enabled: enabled)
+    }
+    
+    open class func ItemsWithEnableControl(text: [String], icon: [UIImage], enabled: [Bool]) -> (text: [String], icon: [UIImage]) {
         return (text:text, icon: icon)
     }
     
-    open var ItemsWithImage: (text: [String], icon: [UIImage]) = ([], []) {
+    
+    open var ItemsWithImage: (text: [String], icon: [UIImage], enabled: [Bool]) = ([],[],[]) {
         didSet {
             guard ItemsWithImage.text.count == ItemsWithImage.icon.count else {
                 assertionFailure("Items must be the same count")
@@ -34,33 +39,49 @@ public class BlockSegment: UIView{
         }
     }
     
-   open var selectedIndex : Int = 0 {
+    open var ItemsWithImageEnableControl: (text: [String], icon: [UIImage]) = ([],[]) {
+        didSet {
+            guard ItemsWithImageEnableControl.text.count == ItemsWithImageEnableControl.icon.count else {
+                assertionFailure("Items must be the same count")
+                return
+            }
+            self.setup()
+        }
+    }
+    
+    open var selectedIndex : Int = 0 {
         didSet {
             collectionView.reloadData()
         }
     }
     
     
-   open var blockHeight : CGFloat = 90 {
+    open var blockHeight : CGFloat = 90 {
         didSet {
             collectionView.reloadData()
         }
     }
     
     
-   open var blockColor : UIColor = .white {
+    open var blockColor : UIColor = .white {
         didSet {
             collectionView.reloadData()
         }
     }
     
-   open var textColor : UIColor = .white {
+    open var unSelectedBlockColor : UIColor = .lightGray {
         didSet {
             collectionView.reloadData()
         }
     }
     
-   open var IconColor : UIColor = .white {
+    open var textColor : UIColor = .white {
+        didSet {
+            collectionView.reloadData()
+        }
+    }
+    
+    open var IconColor : UIColor = .white {
         didSet {
             collectionView.reloadData()
         }
@@ -78,7 +99,7 @@ public class BlockSegment: UIView{
         collectionView.dataSource = self
         collectionView.reloadData()
         self.layoutIfNeeded()
-       
+        
     }
     
     
@@ -93,18 +114,18 @@ public class BlockSegment: UIView{
         self.addSubview(collectionView)
         
         self.addConstraints([NSLayoutConstraint(item: collectionView, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1.0, constant: 0),
-                                       NSLayoutConstraint(item: collectionView, attribute: .bottom, relatedBy: .equal, toItem: self, attribute: .bottom, multiplier: 1.0, constant: 0),
-                                       NSLayoutConstraint(item: collectionView, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 0),
-                                       NSLayoutConstraint(item: collectionView, attribute: .trailing, relatedBy: .equal, toItem: self, attribute: .trailing, multiplier: 1.0, constant: 0)])
+                             NSLayoutConstraint(item: collectionView, attribute: .bottom, relatedBy: .equal, toItem: self, attribute: .bottom, multiplier: 1.0, constant: 0),
+                             NSLayoutConstraint(item: collectionView, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 0),
+                             NSLayoutConstraint(item: collectionView, attribute: .trailing, relatedBy: .equal, toItem: self, attribute: .trailing, multiplier: 1.0, constant: 0)])
         
         layout.scrollDirection = UICollectionViewScrollDirection.vertical
         collectionView.register(BlockCollectionViewCell.self, forCellWithReuseIdentifier: cell)
         collectionView.backgroundColor = .clear
         collectionView.setCollectionViewLayout(layout, animated: true)
-
+        
         self.layoutIfNeeded()
     }
-
+    
 }
 
 extension BlockSegment : UICollectionViewDelegate , UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
@@ -116,15 +137,30 @@ extension BlockSegment : UICollectionViewDelegate , UICollectionViewDataSource,U
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: self.cell, for: indexPath) as! BlockCollectionViewCell
         
-        cell.backgroundColor = selectedIndex == indexPath.row ? blockColor : .lightGray
-        cell.Icon.tintColor = IconColor
-        cell.Icon.image = ItemsWithImage.icon[indexPath.row].withRenderingMode(.alwaysTemplate)
-        cell.title.text = ItemsWithImage.text[indexPath.row]
-        cell.title.textColor = textColor
+        if ItemsWithImageEnableControl.icon.count == 0 && ItemsWithImageEnableControl.text.count == 0 {
+            
+            cell.backgroundColor = selectedIndex == indexPath.row ? blockColor : unSelectedBlockColor
+            cell.Icon.tintColor = IconColor
+            cell.Icon.image = ItemsWithImage.icon[indexPath.row].withRenderingMode(.alwaysTemplate)
+            cell.title.text = ItemsWithImage.text[indexPath.row]
+            cell.title.textColor = textColor
+            cell.isUserInteractionEnabled = ItemsWithImage.enabled[indexPath.row]
+            
+            
+        }else{
+            
+            cell.backgroundColor = selectedIndex == indexPath.row ? blockColor : unSelectedBlockColor
+            cell.Icon.tintColor = IconColor
+            cell.Icon.image = ItemsWithImageEnableControl.icon[indexPath.row].withRenderingMode(.alwaysTemplate)
+            cell.title.text = ItemsWithImageEnableControl.text[indexPath.row]
+            cell.title.textColor = textColor
+        }
+        
+        
         
         return cell
     }
-  
+    
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         self.selectedIndex = indexPath.row
         collectionView.reloadData()
@@ -136,15 +172,14 @@ extension BlockSegment : UICollectionViewDelegate , UICollectionViewDataSource,U
         
     }
     
-   public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let cellsize = CGSize(width: (self.frame.size.width/3) - 15, height: blockHeight)
         return cellsize
     }
     
-   public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsetsMake(10, 10, 10, 10)
     }
     
-    
-
 }
+
