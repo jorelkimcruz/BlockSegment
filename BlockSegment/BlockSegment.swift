@@ -18,7 +18,7 @@ public class BlockSegment: UIView{
     
     internal let cell = "cell"
     
-    var delegate : BlockSegmentDelegate!
+    open var delegate : BlockSegmentDelegate!
     
     open class func Items(text: [String], icon: [UIImage]) -> (text: [String], icon: [UIImage]) {
         return (text:text, icon: icon)
