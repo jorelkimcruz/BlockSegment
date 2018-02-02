@@ -34,39 +34,37 @@ public class BlockSegment: UIView{
         }
     }
     
-    var selectedIndex : Int = 0 {
+   open var selectedIndex : Int = 0 {
         didSet {
             collectionView.reloadData()
         }
     }
     
     
-    var blockHeight : CGFloat = 90 {
+   open var blockHeight : CGFloat = 90 {
         didSet {
             collectionView.reloadData()
         }
     }
     
     
-    var blockColor : UIColor = .white {
+   open var blockColor : UIColor = .white {
         didSet {
             collectionView.reloadData()
         }
     }
     
-    var textColor : UIColor = .white {
+   open var textColor : UIColor = .white {
         didSet {
             collectionView.reloadData()
         }
     }
     
-    var IconColor : UIColor = .white {
+   open var IconColor : UIColor = .white {
         didSet {
             collectionView.reloadData()
         }
     }
-    
-    internal let height : CGFloat = 50
     
     override init(frame: CGRect) {
         super.init(frame: frame)
