@@ -15,7 +15,8 @@ class sampleController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         selector.blockColor = .purple
-        selector.ItemsWithImage = BlockSegment.Items(text: ["BANK","BANK","BANK","BANK","BANK"], icon: [UIImage(named:"Amount")!,UIImage(named:"Amount")!,UIImage(named:"Amount")!,UIImage(named:"Amount")!,UIImage(named:"Amount")!])
+        selector.Items = BlockSegment.Items(text: ["",""], icon: [UIImage(named:"")!])
+//            BlockSegment.Items(text: ["BANK","BANK","BANK","BANK","BANK"], icon: [UIImage(named:"Amount")!,UIImage(named:"Amount")!,UIImage(named:"Amount")!,UIImage(named:"Amount")!,UIImage(named:"Amount")!])
         
     }
 }

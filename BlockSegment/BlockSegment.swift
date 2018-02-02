@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//
 //  BlockSegment
 //
 //  Created by Jorel Cruz on 02/02/2018.
@@ -17,21 +17,21 @@ public class BlockSegment: UIView{
     internal let layout:UICollectionViewFlowLayout = UICollectionViewFlowLayout.init()
     
     internal let cell = "cell"
-    
+    internal var internalSelectedIndex : Int?
     public var delegate : BlockSegmentDelegate!
     
-    open class func Items(text: [String], icon: [UIImage], enabled: [Bool]) -> (text: [String], icon: [UIImage], enabled: [Bool]) {
-        return (text:text, icon: icon, enabled: enabled)
-    }
-    
-    open class func ItemsWithEnableControl(text: [String], icon: [UIImage], enabled: [Bool]) -> (text: [String], icon: [UIImage]) {
+    open class func Items(text: [String], icon: [UIImage]) -> (text: [String], icon: [UIImage]) {
         return (text:text, icon: icon)
     }
     
+    open class func ItemsWithEnableControl(text: [String], icon: [UIImage], enabled: [Bool]) -> (text: [String], icon: [UIImage],enabled: [Bool]) {
+        return (text:text, icon: icon, enabled:enabled)
+    }
     
-    open var ItemsWithImage: (text: [String], icon: [UIImage], enabled: [Bool]) = ([],[],[]) {
+    
+    open var Items: (text: [String], icon: [UIImage]) = ([],[]) {
         didSet {
-            guard ItemsWithImage.text.count == ItemsWithImage.icon.count else {
+            guard Items.text.count == Items.icon.count else {
                 assertionFailure("Items must be the same count")
                 return
             }
@@ -39,9 +39,9 @@ public class BlockSegment: UIView{
         }
     }
     
-    open var ItemsWithImageEnableControl: (text: [String], icon: [UIImage]) = ([],[]) {
+    open var ItemsWithEnableControl: (text: [String], icon: [UIImage],enabled:[Bool]) = ([],[],[]) {
         didSet {
-            guard ItemsWithImageEnableControl.text.count == ItemsWithImageEnableControl.icon.count else {
+            guard ItemsWithEnableControl.text.count == ItemsWithEnableControl.icon.count else {
                 assertionFailure("Items must be the same count")
                 return
             }
@@ -51,9 +51,18 @@ public class BlockSegment: UIView{
     
     open var selectedIndex : Int = 0 {
         didSet {
+            internalSelectedIndex = selectedIndex
             collectionView.reloadData()
         }
     }
+    
+    open var titleFontSize : CGFloat = 15 {
+        didSet {
+            
+            collectionView.reloadData()
+        }
+    }
+    
     
     
     open var blockHeight : CGFloat = 90 {
@@ -131,37 +140,43 @@ public class BlockSegment: UIView{
 extension BlockSegment : UICollectionViewDelegate , UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
     
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return ItemsWithImage.text.count
+        return Items.text.count
     }
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: self.cell, for: indexPath) as! BlockCollectionViewCell
         
-        if ItemsWithImageEnableControl.icon.count == 0 && ItemsWithImageEnableControl.text.count == 0 {
+        if ItemsWithEnableControl.icon.count == 0 && ItemsWithEnableControl.text.count == 0 {
             
-            cell.backgroundColor = selectedIndex == indexPath.row ? blockColor : unSelectedBlockColor
-            cell.Icon.tintColor = IconColor
-            cell.Icon.image = ItemsWithImage.icon[indexPath.row].withRenderingMode(.alwaysTemplate)
-            cell.title.text = ItemsWithImage.text[indexPath.row]
-            cell.title.textColor = textColor
-            cell.isUserInteractionEnabled = ItemsWithImage.enabled[indexPath.row]
-            
+            cell.Icon.image = Items.icon[indexPath.row].withRenderingMode(.alwaysTemplate)
+            cell.title.text = Items.text[indexPath.row]
             
         }else{
             
             cell.backgroundColor = selectedIndex == indexPath.row ? blockColor : unSelectedBlockColor
-            cell.Icon.tintColor = IconColor
-            cell.Icon.image = ItemsWithImageEnableControl.icon[indexPath.row].withRenderingMode(.alwaysTemplate)
-            cell.title.text = ItemsWithImageEnableControl.text[indexPath.row]
-            cell.title.textColor = textColor
+            cell.Icon.image = ItemsWithEnableControl.icon[indexPath.row].withRenderingMode(.alwaysTemplate)
+            cell.title.text = ItemsWithEnableControl.text[indexPath.row]
+            cell.isUserInteractionEnabled = ItemsWithEnableControl.enabled[indexPath.row]
         }
         
+        cell.Icon.tintColor = IconColor
+        cell.title.textColor = textColor
+        cell.title.font = UIFont.systemFont(ofSize: titleFontSize)
         
+        guard let _ = internalSelectedIndex else {
+            cell.backgroundColor = unSelectedBlockColor
+            cell.isSelected = false
+            return cell
+        }
+        
+        cell.backgroundColor = selectedIndex == indexPath.row ? blockColor : unSelectedBlockColor
+        cell.isSelected = selectedIndex == indexPath.row
         
         return cell
     }
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        self.internalSelectedIndex = indexPath.row
         self.selectedIndex = indexPath.row
         collectionView.reloadData()
         guard let del = self.delegate else {
@@ -182,4 +197,3 @@ extension BlockSegment : UICollectionViewDelegate , UICollectionViewDataSource,U
     }
     
 }
-
