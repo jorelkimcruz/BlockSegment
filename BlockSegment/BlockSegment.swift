@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol BlockSegmentDelegate {
+public protocol BlockSegmentDelegate {
     func BlockSegmentSelected(index:Int)
 }
 
@@ -18,7 +18,7 @@ public class BlockSegment: UIView{
     
     internal let cell = "cell"
     
-    open var delegate : BlockSegmentDelegate!
+    public var delegate : BlockSegmentDelegate!
     
     open class func Items(text: [String], icon: [UIImage]) -> (text: [String], icon: [UIImage]) {
         return (text:text, icon: icon)
