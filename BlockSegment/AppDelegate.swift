@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  BlockSegment
 //
-//  Created by Salarium on 02/02/2018.
+//  Created by Jorel Cruz on 02/02/2018.
 //
 
 import UIKit
