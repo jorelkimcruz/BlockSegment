@@ -140,7 +140,12 @@ public class BlockSegment: UIView{
 extension BlockSegment : UICollectionViewDelegate , UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
     
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return Items.text.count
+        if ItemsWithEnableControl.icon.count == 0 && ItemsWithEnableControl.text.count == 0 {
+            return Items.text.count
+        }else{
+            return ItemsWithEnableControl.text.count
+        }
+     
     }
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
